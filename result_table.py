@@ -14,11 +14,9 @@ def write_to_table_result(score, step):
         df_result.loc[df_result['Команда'] == command, f'Баллы {step}'] = score[command][0]
         t = df_result.loc[df_result['Команда'] == command, 'Баллы']
         df_result.loc[df_result['Команда'] == command, 'Баллы'] = t + score[command][0]
-
         df_result.loc[df_result['Команда'] == command, f'Рейтинг {step}'] = score[command][1]
         t = df_result.loc[df_result['Команда'] == command, 'Рейтинг']
         df_result.loc[df_result['Команда'] == command, 'Рейтинг'] = t + score[command][1]
-
     df_result.sort_values(['Лига', 'Рейтинг'], ascending=False, inplace=True)
     df_result.to_csv('Result.csv', index=False, encoding="ANSI")
 
@@ -35,20 +33,16 @@ def write_to_table_individual(score, step):
     for command in score:
         for i in range(2, len(score[command])):
             df_ind.loc[df_ind['ФИО'] == score[command][i][0], 'Команда'] = command
-
             df_ind.loc[df_ind['ФИО'] == score[command][i][0],
                        f'Бой {step} {score[command][i][1]}'] = score[command][i][2]
-
             df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ {score[command][i][1]}'] = (
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Бой 1 {score[command][i][1]}'] +
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Бой 2 {score[command][i][1]}'] +
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Бой 3 {score[command][i][1]}'])
-
             df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ'] = (
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ Д'] +
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ О'] +
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ Р'])
-
         df_ind.sort_values('Общ', ascending=False, inplace=True)
         df_ind.to_csv('Individual_Results.csv', index=False, encoding="ANSI")
 
