@@ -1,7 +1,7 @@
 {
   "TOKEN_BOT": "",
-  "CREDENTIALS_FILE": "keys/example_project_id.json",
-  "TOKEN": "keys/token.json",
+  "CREDENTIALS_FILE": "example_project_id.json",
+  "TOKEN": "token.json",
   "EMAILS": ["service@EXAMPLE.iam.gserviceaccount.com", "example@gmail.com"],
   "USERNAMES": ["", ""],
   "ROOT_FOLDER_ID": "",
