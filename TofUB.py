@@ -20,22 +20,20 @@ def create_service_account():
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
     credentials = None
-
-    config = Config()
+    config = Config('./keys/settings.json')
     CREDENTIALS_FILE = config.get('CREDENTIALS_FILE')
     TOKEN = config.get('TOKEN')
 
-    if os.path.exists(TOKEN):
-        credentials = Credentials.from_authorized_user_file(TOKEN, SCOPES)
+    if os.path.exists(f'./keys/{TOKEN}'):
+        credentials = Credentials.from_authorized_user_file(f'./keys/{TOKEN}', SCOPES)
 
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
         else:
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPES)
-            with open('token.json', 'w') as token:
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(f'./keys/{CREDENTIALS_FILE}', SCOPES)
+            with open('./keys/token.json', 'w') as token:
                 token.write(credentials.to_json())
-
     try:
         httpAuth = credentials.authorize(httplib2.Http())
         return httpAuth
@@ -56,7 +54,7 @@ def create_new_table(http_auth):
         }).execute()
         spreadsheetId = spreadsheet['spreadsheetId']
 
-        config = Config()
+        config = Config('./keys/settings.json')
         EMAILS = config.get('EMAILS')
         for email in EMAILS:
             add_permission(http_auth, email, spreadsheetId)
@@ -90,7 +88,7 @@ def create_folder(http_auth):
                                            ).execute()
         pp.pprint(F'Folder ID: "{file.get("id")}".')
 
-        config = Config()
+        config = Config('./keys/settings.json')
         EMAILS = config.get('EMAILS')
         for email in EMAILS:
             add_permission(http_auth, email, file.get("id"))
@@ -126,7 +124,7 @@ def delete_file(http_auth, file_id):
 
 def copy_table(http_auth, new_name):
     try:
-        config = Config()
+        config = Config('./keys/settings.json')
         ORIGINAL_TABLE_ID = config.get('ORIGINAL_TABLE_ID')
         WORK_FOLDER_ID = config.get('WORK_FOLDER_ID')
         driveService = apiclient.discovery.build('drive', 'v3', http=http_auth)
@@ -193,7 +191,7 @@ def check_cells(sheet):
 
 
 def write_score(sheet_values, action, score):
-    config = Config()
+    config = Config('./keys/settings.json')
     STOP = config.get('STOP')
     match len(sheet_values):
         case 12:
@@ -302,7 +300,7 @@ def check_file(http_auth, q=None, name_files=None):
 
         list_if_file = get_list_of_files(http_auth, q=q)
 
-        config = Config()
+        config = Config('./keys/settings.json')
         EMAILS = config.get('EMAILS')
 
         for i in range(len(list_if_file['files'])):
@@ -446,7 +444,7 @@ def check_file(http_auth, q=None, name_files=None):
                         driveService = apiclient.discovery.build('drive', 'v3', http=http_auth)
                         request = driveService.files().export_media(fileId=file_id,
                                                                     mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                        filename = 'Result.xlsx'
+                        filename = './data/Result.xlsx'
                         fh = io.FileIO(filename, 'wb')
                         downloader = MediaIoBaseDownload(fh, request)
                         done = False
@@ -459,9 +457,9 @@ def check_file(http_auth, q=None, name_files=None):
                         SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
                         CREDENTIALS_FILE = config.get('CREDENTIALS_FILE')
-                        credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPES)
+                        credentials = ServiceAccountCredentials.from_json_keyfile_name(f'./keys/{CREDENTIALS_FILE}', SCOPES)
                         gc = gspread.authorize(credentials)
-                        content = open('Result.csv', 'r').read()
+                        content = open('./data/Result.csv', 'r').read()
                         gc.import_csv(RESULT_ID, content)
 
                         print('Upload individual')
@@ -472,7 +470,7 @@ def check_file(http_auth, q=None, name_files=None):
                         driveService = apiclient.discovery.build('drive', 'v3', http=http_auth)
                         request = driveService.files().export_media(fileId=file_id,
                                                                     mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                        filename = 'Individual_Results.xlsx'
+                        filename = './data/Individual_Results.xlsx'
                         fh = io.FileIO(filename, 'wb')
                         downloader = MediaIoBaseDownload(fh, request)
                         done = False
@@ -482,7 +480,7 @@ def check_file(http_auth, q=None, name_files=None):
 
                         write_to_table_individual(score, list_if_file['files'][i]['name'][4])
 
-                        content = open('Individual_Results.csv', 'r').read()
+                        content = open('./data/Individual_Results.csv', 'r').read()
                         gc.import_csv(INDIVIDUAL_RESULTS_ID, content)
 
                         name_files.append(list_if_file['files'][i]['name'])
@@ -544,13 +542,13 @@ def check_tasks(http_auth, q):
                     elif len(sheet_values[j]) == 3:
                         score[f'Действие_{c}_О'] = [sheet_values[j][0], task]
 
-            config = Config()
+            config = Config('./keys/settings.json')
             PLAYED_TASKS_ID = config.get('PLAYED_TASKS_ID')
             file_id = PLAYED_TASKS_ID
             driveService = apiclient.discovery.build('drive', 'v3', http=http_auth)
             request = driveService.files().export_media(fileId=file_id,
                                                         mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            filename = 'Played_tasks.xlsx'
+            filename = './data/Played_tasks.xlsx'
             fh = io.FileIO(filename, 'wb')
             downloader = MediaIoBaseDownload(fh, request)
             done = False
@@ -563,15 +561,9 @@ def check_tasks(http_auth, q):
             SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
 
             CREDENTIALS_FILE = config.get('CREDENTIALS_FILE')
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPES)
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(f'./keys/{CREDENTIALS_FILE}', SCOPES)
             gc = gspread.authorize(credentials)
 
-            content = open('Played_tasks.csv', 'r').read()
+            content = open('./data/Played_tasks.csv', 'r').read()
 
             gc.import_csv(PLAYED_TASKS_ID, content)
-
-
-
-
-
-

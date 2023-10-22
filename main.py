@@ -11,7 +11,7 @@ from bestconfig import Config
 from TofUB import (create_service_account, get_list_of_files, check_file, check_tasks, sstart,
                    add_permission, delete_permission)
 
-config = Config()
+config = Config('./keys/settings.json')
 TOKEN_BOT = config.get('TOKEN_BOT')
 EMAILS = config.get('EMAILS')
 USERNAMES = config.get('USERNAMES')
