@@ -1,3 +1,7 @@
 .idea
-/data/
-/keys/
+venv
+__pycache__
+/data/*
+/keys/*
+!/keys/settings_example.json
+!/keys/.gitkeep
