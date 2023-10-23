@@ -2,6 +2,7 @@ import io
 import os.path
 import pprint as pp
 from time import sleep
+import asyncio
 
 import apiclient.discovery
 import gspread
@@ -302,7 +303,6 @@ def check_file(http_auth, q=None, name_files=None):
 
         config = Config('./keys/settings.json')
         EMAILS = config.get('EMAILS')
-
         for i in range(len(list_if_file['files'])):
             if (list_if_file['files'][i]['mimeType'] == 'application/vnd.google-apps.spreadsheet'
                     and list_if_file['files'][i]['name'] not in name_files):
@@ -317,8 +317,6 @@ def check_file(http_auth, q=None, name_files=None):
                 sheet_values = result['valueRanges'][0]['values']
                 score = {}
                 if sheet_values[2][7] == 'TRUE':
-
-                    sleep(10)
                     if sheet_values[1][7] == '2':
                         results = [sheet_values[10][1], sheet_values[10][2], sheet_values[11][1], sheet_values[11][2]]
                         print(f"Need to stop {list_if_file['files'][i]['name']}")
@@ -492,7 +490,7 @@ def check_file(http_auth, q=None, name_files=None):
         return None
 
 
-def check_tasks(http_auth, q):
+def check_tasks(http_auth, q=None):
     service = apiclient.discovery.build('sheets', 'v4', http=http_auth)
     list_if_file = get_list_of_files(http_auth, q=q)
 
@@ -567,3 +565,4 @@ def check_tasks(http_auth, q):
             content = open('./data/Played_tasks.csv', 'r').read()
 
             gc.import_csv(PLAYED_TASKS_ID, content)
+    print('Check completed')

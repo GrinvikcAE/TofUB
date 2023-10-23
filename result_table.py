@@ -18,6 +18,7 @@ def write_to_table_result(score, step):
         t = df_result.loc[df_result['Команда'] == command, 'Рейтинг']
         df_result.loc[df_result['Команда'] == command, 'Рейтинг'] = t + score[command][1]
     df_result.sort_values(['Лига', 'Рейтинг'], ascending=False, inplace=True)
+    print('Saving file')
     df_result.to_csv('./data/Result.csv', index=False, encoding="ANSI")
 
 
@@ -44,6 +45,7 @@ def write_to_table_individual(score, step):
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ О'] +
                     df_ind.loc[df_ind['ФИО'] == score[command][i][0], f'Общ Р'])
         df_ind.sort_values('Общ', ascending=False, inplace=True)
+        print('Saving file')
         df_ind.to_csv('./data/Individual_Results.csv', index=False, encoding="ANSI")
 
 
@@ -68,4 +70,5 @@ def write_to_table_tasks(score, step):
             df_pt.loc[df_pt['Команда'] == score[act][0], f'Бой {step} О'] = score[act][1]
 
     df_pt.sort_values('Команда', ascending=True, inplace=True)
+    print('Saving file')
     df_pt.to_csv('./data/Played_tasks.csv', index=False, encoding="ANSI")

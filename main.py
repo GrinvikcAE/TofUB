@@ -2,14 +2,16 @@ import asyncio
 import os
 from datetime import datetime
 from time import sleep
+from threading import Thread
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
+from aiogram.fsm.storage.memory import MemoryStorage
 from bestconfig import Config
 
 from TofUB import (create_service_account, get_list_of_files, check_file, check_tasks, sstart,
-                   add_permission, delete_permission)
+                   add_permission, delete_permission, delete_file)
 
 config = Config('./keys/settings.json')
 TOKEN_BOT = config.get('TOKEN_BOT')
@@ -17,7 +19,34 @@ EMAILS = config.get('EMAILS')
 USERNAMES = config.get('USERNAMES')
 http_auth = create_service_account()
 bot = Bot(TOKEN_BOT, parse_mode='HTML')
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
+
+
+def day():
+    names_of_files = []
+    emails = []
+    with open('./data/start.txt', 'r', encoding="UTF-8") as f:
+        for line in f:
+            names_of_files.append(line.strip('\n').split('\t')[2])
+            emails.append(line.strip('\n').split('\t')[1])
+
+    sstart(http_auth, names_of_files, emails)
+    sleep(600)
+    q = names_of_files[0][:5]
+    stop_len = len(get_list_of_files(http_auth, q=q)['files'])
+    i = 0
+    name_files = []
+
+    while len(name_files) != stop_len:
+        i += 1
+        print('Check ### ' + str(i) + ' ' + str(datetime.now()))
+        temp = check_file(http_auth, q, name_files)
+        print(temp)
+        for j in range(len(temp)):
+            if temp[j] not in name_files:
+                name_files.append(temp[j])
+        sleep(60)
+    print('Check completed')
 
 
 @dp.message(Command('start'))
@@ -79,7 +108,7 @@ async def delete(message: Message, command: CommandObject):
 @dp.message(Command('create'))
 async def create(message: Message, command: CommandObject):
     if message.from_user.username in USERNAMES:
-        with open('start.txt', 'a', encoding="UTF-8") as f:
+        with open('.data/start.txt', 'a', encoding="UTF-8") as f:
             lst = command.args.split(' ')
             f.write(lst[0] + '\t' + lst[1] + '\t' + lst[2] + '\n')
     else:
@@ -89,7 +118,7 @@ async def create(message: Message, command: CommandObject):
 @dp.message(Command('refresh'))
 async def refresh(message: Message):
     if message.from_user.username in USERNAMES:
-        os.remove('start.txt')
+        os.remove('./data/start.txt')
     else:
         await message.reply(f"You don't have permission to this command")
 
@@ -97,28 +126,7 @@ async def refresh(message: Message):
 @dp.message(Command('start_day'))
 async def start_day(message: Message):
     if message.from_user.username in USERNAMES:
-        names_of_files = []
-        emails = []
-        with open('start.txt', 'r', encoding="UTF-8") as f:
-            for line in f:
-                names_of_files.append(line.strip('\n').split('\t')[2])
-                emails.append(line.strip('\n').split('\t')[1])
-
-        sstart(http_auth, names_of_files, emails)
-        sleep(600)
-        q = names_of_files[0][:5]
-        stop_len = len(get_list_of_files(http_auth, q=q)['files'])
-        i = 0
-        name_files = []
-
-        while len(name_files) != stop_len:
-            i += 1
-            print('Check ### ' + str(i) + ' ' + str(datetime.now()))
-            temp = check_file(http_auth, q, names_of_files)
-            for j in range(len(temp)):
-                if temp[j] not in name_files:
-                    name_files.append(temp[j])
-            sleep(60)
+        th = Thread(target=day).start()
     else:
         await message.reply(f"You don't have permission to this command")
 
@@ -134,6 +142,14 @@ async def check(message: Message, command: CommandObject):
     else:
         await message.reply(f"You don't have permission to this command")
 
+
+@dp.message(Command('del_file'))
+async def del_file(message: Message, command: CommandObject):
+    if message.from_user.username in USERNAMES:
+        delete_file(http_auth, file_id=command.args)
+    else:
+        await message.reply(f"You don't have permission to this command")
+
 '''
 @dp.message()
 async def echo(message: Message):
@@ -143,7 +159,7 @@ async def echo(message: Message):
 
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, skip_updates=True)
 
 
 if __name__ == '__main__':
