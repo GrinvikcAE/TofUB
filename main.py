@@ -61,7 +61,7 @@ async def call_help(message: Message):
                          f'/del - Удалить разрешения: email file_name\n'
                          f'/create - Добавить в .txt файл для последующей автоматической выдачи разрешения: '
                          f'ФамилияИО email file_name\n'
-                         f'/refresh - удалить start.txt\n'
+                         f'/refresh - Удалить start.txt\n'
                          f'/start_day - Начать выдачу разрешений и проверку файлов на завершение\n'
                          f'/del_file - Удалить файл: file_id')
 

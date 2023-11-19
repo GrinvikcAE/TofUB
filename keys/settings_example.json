@@ -3,7 +3,7 @@
   "CREDENTIALS_FILE": "example_project_id.json",
   "TOKEN": "token.json",
   "EMAILS": ["service@EXAMPLE.iam.gserviceaccount.com", "example@gmail.com"],
-  "USERNAMES": ["", ""],
+  "USERNAMES": ["Yours @nickname in TG", ""],
   "ROOT_FOLDER_ID": "",
   "ORIGINAL_TABLE_ID": "",
   "WORK_FOLDER_ID": "",
