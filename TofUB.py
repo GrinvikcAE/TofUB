@@ -178,6 +178,7 @@ def sstart(http_auth, names_of_files, emails):
             spreadsheetId = copy_table(http_auth, names_of_files[i])
             add_permission(http_auth, emails[i], spreadsheetId)
             print(f'{emails[i]}: ' + 'https://docs.google.com/spreadsheets/d/' + spreadsheetId)
+            print()
     except HttpError as error:
         print(F'An error occurred: {error}')
         return None
@@ -317,9 +318,10 @@ def check_file(http_auth, q=None, name_files=None):
                 sheet_values = result['valueRanges'][0]['values']
                 score = {}
                 if sheet_values[2][7] == 'TRUE':
+                    print(f"Need to stop {list_if_file['files'][i]['name']}")
+                    sleep(10)
                     if sheet_values[1][7] == '2':
                         results = [sheet_values[10][1], sheet_values[10][2], sheet_values[11][1], sheet_values[11][2]]
-                        print(f"Need to stop {list_if_file['files'][i]['name']}")
                         if check_cells(results) == 4:
                             for j in range(len(list_if_file['files'][i]['permissions'])):
                                 if list_if_file['files'][i]['permissions'][j]['emailAddress'] not in EMAILS:
@@ -333,10 +335,11 @@ def check_file(http_auth, q=None, name_files=None):
                             score = write_score(sheet_values, 1, score)
 
                             ranges = ["Действие_2!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
 
                             score = write_score(sheet_values, 2, score)
@@ -349,7 +352,6 @@ def check_file(http_auth, q=None, name_files=None):
                                    sheet_values[11][1], sheet_values[11][2], sheet_values[11][3],
                                    sheet_values[12][1], sheet_values[12][2], sheet_values[12][3]]
                         if check_cells(results) == 9:
-                            print(f"Need to stop {list_if_file['files'][i]['name']}")
                             for j in range(len(list_if_file['files'][i]['permissions'])):
                                 if list_if_file['files'][i]['permissions'][j]['emailAddress'] not in EMAILS:
                                     delete_permission(http_auth,
@@ -365,18 +367,20 @@ def check_file(http_auth, q=None, name_files=None):
                             score = write_score(sheet_values, 1, score)
 
                             ranges = ["Действие_2!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
                             score = write_score(sheet_values, 2, score)
 
                             ranges = ["Действие_3!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
                             score = write_score(sheet_values, 3, score)
 
@@ -386,7 +390,6 @@ def check_file(http_auth, q=None, name_files=None):
                                    sheet_values[12][1], sheet_values[12][2], sheet_values[12][3],
                                    sheet_values[13][2], sheet_values[13][3], sheet_values[13][4]]
                         if check_cells(results) == 12:
-                            print(f"Need to stop {list_if_file['files'][i]['name']}")
                             for j in range(len(list_if_file['files'][i]['permissions'])):
                                 if list_if_file['files'][i]['permissions'][j]['emailAddress'] not in EMAILS:
                                     delete_permission(http_auth,
@@ -405,26 +408,29 @@ def check_file(http_auth, q=None, name_files=None):
                             score = write_score(sheet_values, 1, score)
 
                             ranges = ["Действие_2!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
                             score = write_score(sheet_values, 2, score)
 
                             ranges = ["Действие_3!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
                             score = write_score(sheet_values, 3, score)
 
                             ranges = ["Действие_4!B24:I37"]
-                            result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
-                                                                              ranges=ranges,
-                                                                              valueRenderOption='FORMATTED_VALUE',
-                                                                              dateTimeRenderOption='FORMATTED_STRING').execute()
+                            result = service.spreadsheets().values().batchGet(
+                                spreadsheetId=list_if_file['files'][i]['id'],
+                                ranges=ranges,
+                                valueRenderOption='FORMATTED_VALUE',
+                                dateTimeRenderOption='FORMATTED_STRING').execute()
                             sheet_values = result['valueRanges'][0]['values']
                             score = write_score(sheet_values, 4, score)
 
@@ -452,10 +458,12 @@ def check_file(http_auth, q=None, name_files=None):
 
                         write_to_table_result(score, list_if_file['files'][i]['name'][4])
 
-                        SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+                        SCOPES = ['https://www.googleapis.com/auth/spreadsheets',
+                                  'https://www.googleapis.com/auth/drive']
 
                         CREDENTIALS_FILE = config.get('CREDENTIALS_FILE')
-                        credentials = ServiceAccountCredentials.from_json_keyfile_name(f'./keys/{CREDENTIALS_FILE}', SCOPES)
+                        credentials = ServiceAccountCredentials.from_json_keyfile_name(f'./keys/{CREDENTIALS_FILE}',
+                                                                                       SCOPES)
                         gc = gspread.authorize(credentials)
                         content = open('./data/Result.csv', 'r').read()
                         gc.import_csv(RESULT_ID, content)
@@ -506,7 +514,7 @@ def check_tasks(http_auth, q=None):
                                                               dateTimeRenderOption='FORMATTED_STRING').execute()
             action = int(result['valueRanges'][0]['values'][0][0])
 
-            for c in range(1, action+1):
+            for c in range(1, action + 1):
                 ranges = [f"Действие_{c}!B27:D30"]
                 result = service.spreadsheets().values().batchGet(spreadsheetId=list_if_file['files'][i]['id'],
                                                                   ranges=ranges,
@@ -566,3 +574,6 @@ def check_tasks(http_auth, q=None):
 
             gc.import_csv(PLAYED_TASKS_ID, content)
     print('Check completed')
+
+# http_auth = create_service_account()
+# check_tasks(http_auth, q='Бой_3')

@@ -30,8 +30,8 @@ def day():
             names_of_files.append(line.strip('\n').split('\t')[2])
             emails.append(line.strip('\n').split('\t')[1])
 
-    sstart(http_auth, names_of_files, emails)
-    sleep(600)
+    # sstart(http_auth, names_of_files, emails)
+    # sleep(600)
     q = names_of_files[0][:5]
     stop_len = len(get_list_of_files(http_auth, q=q)['files'])
     i = 0
@@ -61,7 +61,9 @@ async def call_help(message: Message):
                          f'/del - Удалить разрешения: email file_name\n'
                          f'/create - Добавить в .txt файл для последующей автоматической выдачи разрешения: '
                          f'ФамилияИО email file_name\n'
-                         f'/start_day - Начать выдачу разрешений и проверку файлов на завершение')
+                         f'/refresh - удалить start.txt\n'
+                         f'/start_day - Начать выдачу разрешений и проверку файлов на завершение\n'
+                         f'/del_file - Удалить файл: file_id')
 
 
 @dp.message(Command('get'))
@@ -72,15 +74,19 @@ async def get_list(message: Message, command: CommandObject):
         else:
             q = command.args
         temp = get_list_of_files(http_auth, q=q)
+
         result = {}
         for i in range(len(temp['files'])):
             result[temp['files'][i]['name']] = [temp['files'][i]['mimeType'], temp['files'][i]['id']]
             for j in range(len(temp['files'][i]['permissions'])):
-                if q is not None and temp['files'][i]['permissions'][j]['emailAddress'] not in EMAILS:
-                    result[temp['files'][i]['name']].append(temp['files'][i]['permissions'][j]['emailAddress'])
+                try:
+                    if q is not None and temp['files'][i]['permissions'][j]['emailAddress'] not in EMAILS:
+                        result[temp['files'][i]['name']].append(temp['files'][i]['permissions'][j]['emailAddress'])
+                except Exception as e:
+                    print(f'Not found {e}')
 
         for file in result:
-            await message.reply(f'Filename: <b>{file}</b>, \n{result[file]}')
+            await message.answer(f'Filename: <b>{file}</b>, \n{result[file]}')
     else:
         await message.reply(f"You don't have permission to this command")
 
@@ -108,7 +114,7 @@ async def delete(message: Message, command: CommandObject):
 @dp.message(Command('create'))
 async def create(message: Message, command: CommandObject):
     if message.from_user.username in USERNAMES:
-        with open('.data/start.txt', 'a', encoding="UTF-8") as f:
+        with open('./data/start.txt', 'a', encoding="UTF-8") as f:
             lst = command.args.split(' ')
             f.write(lst[0] + '\t' + lst[1] + '\t' + lst[2] + '\n')
     else:
@@ -119,6 +125,8 @@ async def create(message: Message, command: CommandObject):
 async def refresh(message: Message):
     if message.from_user.username in USERNAMES:
         os.remove('./data/start.txt')
+        file = open('./data/start.txt', 'w', encoding="UTF-8")
+        file.close()
     else:
         await message.reply(f"You don't have permission to this command")
 
@@ -149,6 +157,7 @@ async def del_file(message: Message, command: CommandObject):
         delete_file(http_auth, file_id=command.args)
     else:
         await message.reply(f"You don't have permission to this command")
+
 
 '''
 @dp.message()
